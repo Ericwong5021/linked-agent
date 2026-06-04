@@ -59,13 +59,25 @@ export function groupByDivision(agents: Agent[]): Division[] {
 }
 
 /**
- * Find an agent by slug.
+ * Find an agent by exact slug match.
  */
 export function findAgentBySlug(
   agents: Agent[],
   slug: string
 ): Agent | undefined {
   return agents.find((a) => a.slug === slug)
+}
+
+/**
+ * Find agents by partial slug match (case-insensitive substring).
+ * Returns all agents whose slug contains the query string.
+ */
+export function findAgentsByPartialSlug(
+  agents: Agent[],
+  slug: string
+): Agent[] {
+  const q = slug.toLowerCase()
+  return agents.filter((a) => a.slug.toLowerCase().includes(q))
 }
 
 /**
