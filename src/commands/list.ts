@@ -7,16 +7,27 @@ export function registerListCommand(program: Command): void {
   program
     .command('list')
     .description('List all linked agents')
-    .option('--no-cache', 'Force fresh fetch from GitHub')
+    .option('--cache-dir <path>', 'Custom cache directory')
+    .option('--source <name>', 'Agent source: agency, lobehub, or all', 'agency')
+    .option('--no-cache', 'Force fresh fetch from remote source')
     .option('-d, --division <name>', 'Filter by division name')
     .option('-s, --search <query>', 'Search agents by name, description, or vibe')
     .option('--sort <field>', 'Sort by field: name (default) or division', 'name')
     .option('--limit <n>', 'Max agents per page', '20')
     .option('--offset <n>', 'Starting position for pagination', '0')
     .option('--json', 'Output as JSON')
+    .addHelpText('after', `
+Agent examples:
+  $ linked-agent list --search reviewer --json
+  $ linked-agent list --source lobehub --search designer --limit 5 --json
+  $ linked-agent list --division design --limit 5 --json
+
+Tip for AI agents:
+  Use --json for inventory scans, then inspect promising slugs with \`linked-agent show <slug> --json\`.
+`)
     .action(async (opts) => {
       try {
-        const allAgents = await fetchAgents({ noCache: !opts.cache })
+        const allAgents = await fetchAgents({ noCache: !opts.cache, source: opts.source, cacheDir: opts.cacheDir })
 
         // Filter by division
         let agents: Agent[] = opts.division

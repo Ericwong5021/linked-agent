@@ -11,7 +11,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "tsc --noEmit",
-    "test": "echo \"No tests yet\""
+    "test": "npm run build:test && node --test test/*.test.mjs",
+    "build:test": "rm -rf .test-dist && tsc --outDir .test-dist --declaration false --declarationMap false"
   },
   "keywords": [
     "linkedin",

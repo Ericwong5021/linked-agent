@@ -70,6 +70,7 @@ export function parseAgent(
       : undefined,
     sections: extractSections(markdown),
     rawMarkdown: markdown,
+    source: 'agency',
   }
 }
 

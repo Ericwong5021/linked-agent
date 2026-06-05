@@ -20,10 +20,13 @@ function formatAgentText(agent: Agent): string {
   lines.push(chalk.bold(`${agent.emoji} ${agent.name}`))
   lines.push(SEPARATOR)
   lines.push('')
+  lines.push(`Source:      ${agent.source ?? 'agency'}${agent.sourceId ? ` (${agent.sourceId})` : ''}`)
   lines.push(`Division:    ${agent.division}`)
   lines.push(`Description: ${agent.description}`)
   lines.push(`Vibe:        ${chalk.dim(agent.vibe)}`)
   lines.push(`Color:       ${agent.color}`)
+  if (agent.tags?.length) lines.push(`Tags:        ${agent.tags.join(', ')}`)
+  if (agent.sourceUrl) lines.push(`Source URL:  ${agent.sourceUrl}`)
   lines.push('')
 
   if (agent.services?.length) {
@@ -66,6 +69,11 @@ function formatAgentJson(agent: Agent): object {
     color: agent.color,
     vibe: agent.vibe,
     division: agent.division,
+    source: agent.source,
+    sourceId: agent.sourceId,
+    tags: agent.tags ?? [],
+    author: agent.author,
+    sourceUrl: agent.sourceUrl,
     description: agent.description,
     sections: agent.sections.map((s) => ({
       title: s.title,
@@ -138,12 +146,23 @@ export function registerShowCommand(program: Command): void {
     .command('show')
     .description('Show details of a linked agent')
     .argument('<slug>', 'Agent slug to show (e.g. engineering-code-reviewer)')
-    .option('--no-cache', 'Force fresh fetch from GitHub')
+    .option('--cache-dir <path>', 'Custom cache directory')
+    .option('--source <name>', 'Agent source: agency, lobehub, or all', 'all')
+    .option('--no-cache', 'Force fresh fetch from remote source')
     .option('--json', 'Output as JSON')
     .option('--section <title>', 'Only show sections matching title (substring)')
+    .addHelpText('after', `
+Agent examples:
+  $ linked-agent show lobehub/frontend-development-expert --json
+  $ linked-agent show engineering-code-reviewer --json
+  $ linked-agent show engineering-code-reviewer --section mission
+
+Tip for AI agents:
+  Use --json to compare mission, capabilities, rules, services, and vibe programmatically.
+`)
     .action(async (slug: string, opts) => {
       try {
-        const agents = await fetchAgents({ noCache: !opts.cache })
+        const agents = await fetchAgents({ noCache: !opts.cache, source: opts.source, cacheDir: opts.cacheDir })
 
         // 1. Exact match
         let agent = findAgentBySlug(agents, slug)
@@ -164,6 +183,8 @@ export function registerShowCommand(program: Command): void {
                     name: a.name,
                     emoji: a.emoji,
                     division: a.division,
+                    source: a.source,
+                    sourceId: a.sourceId,
                   })),
                   null,
                   2

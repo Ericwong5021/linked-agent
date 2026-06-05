@@ -76,6 +76,11 @@ export function renderTable(opts: TableOptions): string {
     { header: '#', width: 4, align: 'right', render: (_, i) => String(offset + i + 1) },
     { header: 'Emoji', width: 6, render: (a) => a.emoji },
     {
+      header: 'Source',
+      width: 10,
+      render: (a) => truncate(chalk.gray(a.source ?? 'agency'), 10),
+    },
+    {
       header: 'Name',
       width: 32,
       render: (a) => truncate(chalk.cyan.bold(a.name), 32),
@@ -144,6 +149,10 @@ export interface JsonOutput {
     emoji: string
     division: string
     description: string
+    source?: string
+    sourceId?: string
+    tags?: string[]
+    sourceUrl?: string
   }>
 }
 
@@ -164,6 +173,10 @@ export function buildJsonOutput(
       emoji: a.emoji,
       division: a.division,
       description: a.description,
+      source: a.source,
+      sourceId: a.sourceId,
+      tags: a.tags,
+      sourceUrl: a.sourceUrl,
     })),
   }
 }
