@@ -5,6 +5,7 @@ import { VERSION } from './version.js'
 import { registerListCommand } from './commands/list.js'
 import { registerShowCommand } from './commands/show.js'
 import { registerSearchCommand } from './commands/search.js'
+import { registerCacheCommand } from './commands/cache.js'
 
 const program = new Command()
 
@@ -16,5 +17,6 @@ program
 registerListCommand(program)
 registerShowCommand(program)
 registerSearchCommand(program)
+registerCacheCommand(program)
 
 program.parse()

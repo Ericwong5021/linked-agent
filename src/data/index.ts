@@ -32,6 +32,9 @@ export async function fetchAgents(
   const files = await fetchAllAgents({
     githubApiBase: opts?.githubApiBase,
     githubRawBase: opts?.githubRawBase,
+    timeoutMs: opts?.timeoutMs,
+    retries: opts?.retries,
+    token: opts?.token,
   })
 
   const agents = parseAllAgents(files)

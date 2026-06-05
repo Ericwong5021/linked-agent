@@ -18,31 +18,48 @@ export function getCacheDir(customDir?: string): string {
   return expandHome(dir)
 }
 
-/** Check if cache is valid (exists and not expired) */
-export function isCacheValid(cacheDir: string): boolean {
-  const agentsPath = path.join(cacheDir, 'agents.json')
-  const metaPath = path.join(cacheDir, 'meta.json')
-
-  if (!fs.existsSync(agentsPath) || !fs.existsSync(metaPath)) {
-    return false
+export function getCachePaths(cacheDir: string): {
+  agentsPath: string
+  metaPath: string
+} {
+  return {
+    agentsPath: path.join(cacheDir, 'agents.json'),
+    metaPath: path.join(cacheDir, 'meta.json'),
   }
+}
+
+export function readCacheMeta(cacheDir: string): CacheMeta | undefined {
+  const { metaPath } = getCachePaths(cacheDir)
+  if (!fs.existsSync(metaPath)) return undefined
 
   try {
-    const meta: CacheMeta = JSON.parse(
-      fs.readFileSync(metaPath, 'utf-8')
-    )
-    const age = Date.now() - new Date(meta.fetchedAt).getTime()
-    return age < CACHE_TTL_MS
+    return JSON.parse(fs.readFileSync(metaPath, 'utf-8')) as CacheMeta
   } catch {
+    return undefined
+  }
+}
+
+export function getCacheAgeMs(meta: CacheMeta): number {
+  return Date.now() - new Date(meta.fetchedAt).getTime()
+}
+
+/** Check if cache is valid (exists and not expired) */
+export function isCacheValid(cacheDir: string): boolean {
+  const { agentsPath } = getCachePaths(cacheDir)
+  const meta = readCacheMeta(cacheDir)
+
+  if (!fs.existsSync(agentsPath) || !meta) {
     return false
   }
+
+  return getCacheAgeMs(meta) < CACHE_TTL_MS
 }
 
 /** Read agents from cache */
 export function readCache(cacheDir: string): Agent[] {
-  const agentsPath = path.join(cacheDir, 'agents.json')
+  const { agentsPath } = getCachePaths(cacheDir)
   if (!fs.existsSync(agentsPath)) return []
-  return JSON.parse(fs.readFileSync(agentsPath, 'utf-8'))
+  return JSON.parse(fs.readFileSync(agentsPath, 'utf-8')) as Agent[]
 }
 
 /** Write agents and metadata to cache */
@@ -52,8 +69,7 @@ export function writeCache(
 ): void {
   fs.mkdirSync(cacheDir, { recursive: true })
 
-  const agentsPath = path.join(cacheDir, 'agents.json')
-  const metaPath = path.join(cacheDir, 'meta.json')
+  const { agentsPath, metaPath } = getCachePaths(cacheDir)
 
   fs.writeFileSync(agentsPath, JSON.stringify(agents, null, 2), 'utf-8')
 
@@ -69,6 +85,6 @@ export function writeCache(
 /** Clear the cache directory */
 export function clearCache(cacheDir: string): void {
   if (fs.existsSync(cacheDir)) {
-    fs.rmSync(cacheDir, { recursive: true })
+    fs.rmSync(cacheDir, { recursive: true, force: true })
   }
 }

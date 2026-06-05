@@ -49,6 +49,12 @@ export interface FetchOptions {
   githubApiBase?: string
   /** GitHub raw content base URL */
   githubRawBase?: string
+  /** Request timeout in milliseconds */
+  timeoutMs?: number
+  /** Number of retries for transient network/API failures */
+  retries?: number
+  /** GitHub token, defaults to GITHUB_TOKEN or GH_TOKEN environment variables */
+  token?: string
 }
 
 export const DEFAULT_CACHE_DIR = '~/.linked-agent/cache/'
