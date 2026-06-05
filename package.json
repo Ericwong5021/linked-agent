@@ -1,0 +1,31 @@
+{
+  "name": "linked-agent",
+  "version": "0.1.0",
+  "description": "CLI tool for browsing LinkedIn agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "linked-agent": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["linkedin", "agent", "cli"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
